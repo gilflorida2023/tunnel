@@ -9,13 +9,20 @@
 #include <errno.h>
 #include <signal.h>
 
-#define MAX_PORT 65535
-#define MIN_PORT 1
+#define MAX_PORT 65535  // Maximum valid port number
+#define MIN_PORT 1      // Minimum valid port number
 
-// Global variable to store the child process ID for cleanup
+/**
+ * Global variable to store the child process ID for cleanup.
+ * This is used by the signal handler to terminate the SSH process on interrupt.
+ */
 pid_t ssh_pid = 0;
 
-// Signal handler for Ctrl+C
+/**
+ * Signal handler for Ctrl+C (SIGINT).
+ * Cleans up the SSH tunnel process before exiting.
+ * @param sig The signal number (unused in this handler)
+ */
 void handle_interrupt(int) {
     if (ssh_pid > 0) {
         printf("\nStopping tunnel...\n");
@@ -24,7 +31,11 @@ void handle_interrupt(int) {
     exit(0);
 }
 
-// Check if a port is in use on localhost
+/**
+ * Checks if a port is already in use on localhost.
+ * @param port The port number to check
+ * @return 1 if port is in use, 0 if available, -1 on error
+ */
 int is_port_in_use(int port) {
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
@@ -52,6 +63,10 @@ int is_port_in_use(int port) {
     return 0; // Port is free
 }
 
+/**
+ * Prints usage information for the program.
+ * @param progname The name of the program (argv[0])
+ */
 void print_usage(const char *progname) {
     printf("Usage: %s <remotehost> <remoteusername> <port>\n", progname);
     printf("  remotehost: The remote host to connect to (e.g., example.com)\n");
@@ -59,6 +74,15 @@ void print_usage(const char *progname) {
     printf("  port: The port to forward (1-65535)\n");
 }
 
+/**
+ * Main program that establishes an SSH tunnel.
+ * Usage: tunnel <remotehost> <remoteusername> <port>
+ * Creates an SSH tunnel that forwards the specified local port to the same port
+ * on the remote host. The program runs until interrupted with Ctrl+C.
+ * @param argc Argument count
+ * @param argv Argument vector
+ * @return 0 on success, 1 on error
+ */
 int main(int argc, char *argv[]) {
     // Check argument count
     if (argc != 4) {
