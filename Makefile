@@ -4,6 +4,7 @@ CFLAGS = -Wall -Wextra -O0  -g3
 TARGET = tunnel
 SOURCES = tunnel.c
 OBJECTS = $(SOURCES:.c=.o)
+PROJECTSBIN = ~/projects/bin
 
 # Default target
 all: $(TARGET)
@@ -19,6 +20,11 @@ $(TARGET): $(OBJECTS)
 # Clean up
 clean:
 	rm -f $(OBJECTS) $(TARGET)
+
+install: $(TARGET)
+	cp $(TARGET) $(PROJECTSBIN)/$(TARGET)
+
+
 
 # Phony targets
 .PHONY: all clean
